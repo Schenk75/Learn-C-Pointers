@@ -753,3 +753,345 @@ char *message2 = "Hello";
 
 ### 8.2 多维数组
 
+#### 8.2.1 存储顺序
+
+定义一个数组：
+
+```c
+int array[3][6];
+```
+
+其在内存中的存储形式为：
+
+![image-20201030235423211](.C和指针notes.asserts/image-20201030235423211.png)
+
+这18个元素的下标值依次是(0,0) (0,1) (0,2) (0,3) (0,4) (0,5) (1,0) ... (2,4) (2,5)
+
+#### 8.2.2 数组名
+
+如在`int matrix[3][10]`中，matrix是指向一个包含10个整型元素的数组的指针
+
+![image-20201031000129705](.C和指针notes.asserts/image-20201031000129705.png)
+
+那么matrix+1则指向：
+
+![image-20201031000214011](.C和指针notes.asserts/image-20201031000214011.png)
+
+而*(matrix + 1) + 5就等价于matrix[1] + 5，是一个指向整型的指针：
+
+![image-20201031000530029](.C和指针notes.asserts/image-20201031000530029.png)
+
+#### 8.2.4 指向数组的指针
+
+声明一个指向整型数组的指针，并令其指向matrix数组的第一行：
+
+```c
+int (*p)[10] = matrix;
+```
+
+#### 8.2.5 作为函数参数的多维数组
+
+可以使用以下两张形式的任何一种：
+
+```c
+void func(int (*mat)[10]);
+void func(int mat[][10]);
+```
+
+#### 8.2.6 初始化
+
+![image-20201031171919198](.C和指针notes.asserts/image-20201031171919198.png)
+
+#### 8.2.7 数组长度自动计算
+
+在多维数组中，只有第1维才能根据初始化列表缺省地提供，剩余的几个维必须显式写出
+
+### 8.3 指针数组
+
+定义方式如下：
+
+```c
+char const *keyword[] = {
+    "do",
+    "for",
+    "if",
+    "return",
+    NULL
+}
+```
+
+这样定义的好处在于如果要遍历这个表，只需要`for (kwp=keyword; *kwp!=NULL; kwp++)`
+
+## Ch9 字符串、字符和字节
+
+### 9.1 字符串基础
+
+- 字符串的长度不包含最后的NUL字节
+- 头文件string.h包含了使用字符串函数所需的原型和声明
+
+### 9.2 字符串长度
+
+```c
+size_t strlen(char const *string);
+```
+
+- 返回类型为size_t，是一个无符号整数类型
+
+- 不要在表达式中同时包含有符号数和无符号数，因此应该把strlen的返回值**强制转换为int**
+
+### 9.3 不受限制的字符串函数
+
+#### 9.3.1 复制字符串
+
+```c
+char *strcpy(char *dst, char const *src);
+```
+
+- dst必须是一个字符数组或是一个指向动态分配内存的数组的指针
+- 复制字符串前必须保证目标字符数组的空间足以容纳需要复制的字符串，不然会覆盖数组之后内存的内容
+
+#### 9.3.2 连接字符串
+
+```c
+char *strcat(char *dst, char const *src);
+```
+
+- 将src字符串的拷贝添加到dst字符串之后
+
+#### 9.3.4 字符串比较
+
+```c
+int strcmp(char const *s1, char const *s2);
+```
+
+- 若s1小于s2，返回一个小于0的值；若s1大于s2，返回一个大于0的值；若s1和s2相等，返回0
+
+### 9.4 长度受限的字符串函数
+
+- 字符串复制，将src的前len个字符(不够补NUL)复制给dst，但当src的长度大于len时，只能复制len个字符给dst，因此结果的dst最后是没有NUL的
+
+  ```c
+  char *strncpy(char *dst, char const *src, size_t len);
+  ```
+
+- 字符串连接，将src的前len个字符(不够补NUL)连接到dst后面，会自动添加一个NUL在dst的最后
+
+  ```c
+  char *strncat(char *dst, char const *src, size_t len);
+  ```
+
+- 字符串比较，比较两个字符串的前len位
+
+  ```c
+  int strncmp(char const *s1, char const *s2, size_t len);
+  ```
+
+### 9.5 字符串查找基础
+
+#### 9.5.1 查找一个字符
+
+```c
+char *strchr(char const *str, int ch);
+char *strrchr(char const *str, int ch);
+```
+
+- 在字符串str中查找字符ch第一次出现的位置，返回一个指向该位置的指针，若没有找到返回NULL指针
+- strchr从左开始找，strrchr从右开始找
+
+#### 9.5.2 查找任何几个字符
+
+```c
+char *strpbrk(char const *str, char const *group);
+```
+
+- 返回一个指向str中第一个匹配group中任何一个字符的位置指针
+
+#### 9.5.3 查找一个子串
+
+```c
+char *strstr(char const *s1, char const *s2);
+```
+
+- 在s1中查找整个s2第一次出现的起始位置，并返回一个指向该位置的指针
+
+### 9.6 高级字符串查找
+
+#### 9.6.1 查找一个字符串前缀
+
+```c
+size_t strspn(char const *str, char const *group);
+size_t strcspn(char const *str, char const *group);
+```
+
+- strspn返回str起始部分匹配group中任意字符的字符数，而strcspn找的是非group中的字符
+
+- 例如得到指向字符串中第一个非空白字符：
+
+  ```c
+  prt = buffer + strspn(buffer, "\n\t\r\f\v");
+  ```
+
+#### 9.6.2 查找标记
+
+```c
+char *strtok(char *str, char const *sep);
+```
+
+- 从字符串中隔离各个单独的称为标记的部分
+- sep定义了用作分隔符的字符集合
+
+- 若strtok的第一个参数不是NULL，函数将找到字符串的第一个标记，同时保存它在字符串中的位置；若strtok的第一个参数是NULL，函数将在同一个字符串中从保存的位置开始查找下一个标记；若找不到下一个标记，则返回NULL
+
+- 例子：查找被空白分隔的单词
+
+  ```c
+  for (token=strtok(line, whitespace); token!=NULL; token=strtok(NULL, whitespace)) {
+  	printf("%s\n", token);
+  }
+  ```
+
+### 9.7 错误信息
+
+```c
+char *strerror(int error_number);
+```
+
+- 参数为错误代码，返回一个指向用于描述错误的字符串的指针
+
+### 9.8 字符操作
+
+头文件ctype.h
+
+#### 9.8.1 字符分类
+
+<img src=".C和指针notes.asserts/image-20201031215526209.png" alt="image-20201031215526209"  />
+
+#### 9.8.2 字符大小写转换
+
+```c
+int tolower(int ch);
+int toupper(int ch);
+```
+
+### 9.9 内存操作
+
+```c
+void *memcpy(void *dst, void const *src, size_t length);
+void *memmove(void *dst, void const *src, size_t length);
+void *memcmp(void const *a, void const *b, size_t length);
+void *memchr(void const *a, int ch, size_t length);
+void *memset(void *a, int ch, size_t length);
+```
+
+- 与strn带头的函数不同，这些函数遇到NUL字节时不会停止操作
+
+## Ch10 结构和联合
+
+### 10.1 结构基础知识
+
+当一个结构变量在表达式中使用时，并不被替换成一个指针，而是一个标量类型
+
+#### 10.1.1 结构声明
+
+```c
+struct {
+    int a;
+    char b;
+    float c;
+} x, y[20], *z;
+```
+
+- 声明了结构体x，包含20个结构体的数组y，指向结构体的指针z
+
+```c
+struct SIMPLE {
+    int a;
+    char b;
+    float c;
+};
+
+struct SIMPLE x, y[20], *z;
+```
+
+推荐使用以下声明方法：
+
+```c
+typedef struct {
+    int a;
+    char b;
+    float c;
+} Simple;
+
+Simple x, y[20], *z;
+```
+
+#### 10.1.2 结构成员
+
+- 直接访问：
+
+  ```c
+  Simple simp;
+  
+  // 访问成员a
+  simp.a
+  ```
+
+- 间接访问：
+
+  ```c
+  Simple *simp;
+  
+  // 访问成员a
+  simp->a
+  ```
+
+#### 10.1.5 结构的自引用
+
+```c
+// 错误
+struct SELF_REF {
+    int a;
+    struct SELF_REF b;
+    int c;
+};
+
+// 正确
+struct SELF_REF {
+    int a;
+    struct SELF_REF *b;
+    int c;
+};
+
+// 错误
+typedef struct {
+    int a;
+    struct SELF_REF *b;
+    int c;
+} SELF_REF;
+
+// 正确
+typedef struct SELF_REF_TAG {
+    int a;
+    struct SELF_REF_TAG *b;
+    int c;
+} SELF_REF;
+```
+
+#### 10.1.6 不完整的声明
+
+用于多个相互依赖的结构体之间的声明
+
+```c
+struct B;
+
+struct A {
+    struct B *partner;
+};
+
+struct B {
+    struct A *partner;
+};
+```
+
+### 10.2 结构、指针和成员
+
