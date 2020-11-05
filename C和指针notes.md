@@ -1420,3 +1420,73 @@ typedef struct NODE {
 
 ![image-20201105133824925](.C和指针notes.asserts/image-20201105133824925.png)
 
+## Ch14 预处理器
+
+### 14.1 预定义符号
+
+| 符号      | 样例          | 含义                        |
+| --------- | ------------- | --------------------------- |
+| \__FILE__ | "name.c"      | 进行编译的文件名            |
+| \__LINE__ | 25            | 文件当前行的行号            |
+| \__DATE__ | "Jan 31 1997" | 文件被编译的日期            |
+| \__TIME__ | "18:04:30"    | 文件被编译的时间            |
+| \__STDC__ | 1             | 如果编译器遵循ANSI C，值为1 |
+
+### 14.2 #define
+
+```c
+#define name stuff
+```
+
+替换文本不仅限于数值字面值常量。
+
+```c
+#define reg register
+#define do_forever for(;;)
+#define CASE break;case
+```
+
+#### 14.2.1 宏
+
+#define允许把参数替换到文本中，如：
+
+```c
+#define SQUARE(x) (x)*(x)
+
+SQUARE(5)   // 输出25
+```
+
+#### 14.2.3 宏与函数
+
+可以使用宏来实现简单的函数，如比较大小：
+
+```c
+#define MAX(a, b) ((a)>(b) ? (a) : (b))
+```
+
+#### 14.2.6 #undef 
+
+移除一个宏定义
+
+```c
+#undef name
+```
+
+### 14.3 条件编译
+
+```c
+#if 常量表达式
+	statements
+#elif 常量表达式
+    statements
+#else
+    statements
+#endif
+```
+
+- 如果常量表达式非零，则statements正常编译，否则不编译
+
+## Ch15 输入/输出函数
+
+### 15.1 错误报告
+
