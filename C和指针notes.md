@@ -1353,4 +1353,70 @@ void *realloc(void *ptr, size_t new_size);
 
 - 内存泄漏：在使用完毕动态内存后没有进行释放
 
-## Ch12 
+## Ch12 使用结构和指针
+
+### 12.2 单链表
+
+声明一个节点：
+
+```c
+typedef struct NODE {
+    struct NODE *link;
+    int value;
+} Node;
+```
+
+链表结构如图所示：
+
+![image-20201105130430994](.C和指针notes.asserts/image-20201105130430994.png)
+
+#### 12.2.1 插入一个有序单链表
+
+```c
+// 函数的参数是一个指向链表第一个节点的指针，以及一个需要插入的新值
+#include <stdio.h>
+#include <stdlib.h>
+#include "sll_node.h"
+
+#define FALSE 0
+#define TRUE 1
+
+int sll_insert(register Node **linkp, int new_value) {
+    register Node *current;
+    register Node *new;
+    
+    // 寻找正确的插入位置
+    while ((current=*linkp) != NULL && current->value < new_value) {
+        linkp = &current->link;
+    }
+    
+    // 为新节点分配内存
+    new = (Node *)malloc(sizeof(Node));
+    if (new == NULL) {
+        return FALSE;
+    }
+    new->value = new_value;
+    
+    // 插入节点
+    new->link = current;
+    *linkp = new;
+    return TRUE;
+}
+```
+
+### 12.3 双链表
+
+声明一个双链表节点:
+
+```c
+typedef struct NODE {
+    struct NODE *fwd;
+    struct NODE *bwd;
+    int value;
+} Node;
+```
+
+双链表结构如图所示：
+
+![image-20201105133824925](.C和指针notes.asserts/image-20201105133824925.png)
+
